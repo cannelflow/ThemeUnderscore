@@ -70,6 +70,12 @@ function myproperscore_setup() {
 
 	// Add theme support for selective refresh for widgets.
 	add_theme_support( 'customize-selective-refresh-widgets' );
+	
+	/**
+	 * Add editor styles
+	 */
+	add_editor_style( array( 'inc/editor-style.css', 'fonts/custom-fonts.css', 'https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css' ) );
+	
 }
 endif;
 add_action( 'after_setup_theme', 'myproperscore_setup' );
