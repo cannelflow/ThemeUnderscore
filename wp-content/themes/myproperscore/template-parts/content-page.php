@@ -11,6 +11,16 @@
 
 <article id="post-<?php the_ID(); ?>" <?php post_class(); ?>>
 	<header class="entry-header">
+		<?php
+		
+		if ( has_post_thumbnail() ) { 
+			echo '<figure class="featured-image">';
+				the_post_thumbnail();
+				// the_post_thumbnail('mypopperscores-small-thumb');
+			echo '</figure>';
+			}
+		
+		?>
 		<?php the_title( '<h1 class="entry-title">', '</h1>' ); ?>
 	</header><!-- .entry-header -->
 

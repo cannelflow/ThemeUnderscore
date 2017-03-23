@@ -25,7 +25,7 @@ function myproperscore_posted_on() {
 	);
 
 	$posted_on = sprintf(
-		esc_html_x( 'Posted on %s', 'post date', 'myproperscore' ),
+		esc_html_x( ' Published %s', 'post date', 'myproperscore' ),
 		'<a href="' . esc_url( get_permalink() ) . '" rel="bookmark">' . $time_string . '</a>'
 	);
 
@@ -33,9 +33,24 @@ function myproperscore_posted_on() {
 		esc_html_x( 'by %s', 'post author', 'myproperscore' ),
 		'<span class="author vcard"><a class="url fn n" href="' . esc_url( get_author_posts_url( get_the_author_meta( 'ID' ) ) ) . '">' . esc_html( get_the_author() ) . '</a></span>'
 	);
+	
+	// Display the author avatar if the author has a Gravatar
+	$author_id = get_the_author_meta( 'ID' );
 
-	echo '<span class="posted-on">' . $posted_on . '</span><span class="byline"> ' . $byline . '</span>'; // WPCS: XSS OK.
-
+    echo '<div class="meta-content has-avatar">';
+	echo '<div class="author-avatar">' . get_avatar( $author_id ) . '</div>';
+	
+	echo '<span class="byline"> ' . $byline  . '</span><span class="posted-on">' . $posted_on . '</span>'; // WPCS: XSS OK.
+	
+	if ( ! post_password_required() && ( comments_open() || get_comments_number() ) ) {
+		echo ' <span class="comments-link">';
+		/* translators: %s: post title */
+		comments_popup_link( sprintf( wp_kses( __( 'Leave a Comment<span class="screen-reader-text"> on %s</span>', 'myproperscore' ), array( 'span' => array( 'class' => array() ) ) ), get_the_title() ) );
+		echo '</span>';
+	}
+	
+	echo '</div><!-- .meta-content -->';
+	
 }
 endif;
 
@@ -120,3 +135,98 @@ function myproperscore_category_transient_flusher() {
 }
 add_action( 'edit_category', 'myproperscore_category_transient_flusher' );
 add_action( 'save_post',     'myproperscore_category_transient_flusher' );
+
+/**
+ * Customize the excerpt read-more indicator
+ */
+function mypopperscores_excerpt_more( $more ) {
+	return " …";
+}
+add_filter( 'excerpt_more', 'mypopperscores_excerpt_more' );
+
+if ( ! function_exists( 'mypopperscores_index_posted_on' ) ) :
+/**
+ * Prints HTML with meta information for post-date/time and author on index pages.
+ */
+function mypopperscores_index_posted_on() {
+	
+	$author_id = get_the_author_meta( 'ID' );
+	
+	$time_string = '<time class="entry-date published updated" datetime="%1$s">%2$s</time>';
+	if ( get_the_time( 'U' ) !== get_the_modified_time( 'U' ) ) {
+		$time_string = '<time class="entry-date published" datetime="%1$s">%2$s</time><time class="updated" datetime="%3$s">%4$s</time>';
+	}
+	$time_string = sprintf( $time_string,
+		esc_attr( get_the_date( 'c' ) ),
+		esc_html( get_the_date() ),
+		esc_attr( get_the_modified_date( 'c' ) ),
+		esc_html( get_the_modified_date() )
+	);
+	$posted_on = sprintf(
+		esc_html_x( 'Published %s', 'post date', 'popper' ),
+		'<a href="' . esc_url( get_permalink() ) . '" rel="bookmark">' . $time_string . '</a>'
+	);
+	$byline = sprintf(
+		esc_html_x( 'by %s', 'post author', 'popper' ),
+		'<span class="author vcard"><a class="url fn n" href="' . esc_url( get_author_posts_url( get_the_author_meta( 'ID' ) ) ) . '">' . esc_html( get_the_author() ) . '</a></span>'
+	);
+	
+	echo '<div class="meta-content">';
+	echo '<span class="byline">' . $byline . ' </span><span class="posted-on">' . $posted_on . ' </span>'; // WPCS: XSS OK.
+	if ( ! post_password_required() && ( comments_open() || get_comments_number() ) ) {
+		echo '<span class="comments-link">';
+		comments_popup_link( esc_html__( 'Leave a comment', 'popper' ), esc_html__( '1 Comment', 'popper' ), esc_html__( '% Comments', 'popper' ) );
+		echo '</span>';
+	}
+	echo '</div><!-- .meta-content -->';
+}
+endif;
+
+if ( ! function_exists( 'popperscores_paging_nav' ) ) :
+/**
+ * Display navigation to next/previous set of posts when applicable.
+ *
+ * @since Twenty Fourteen 1.0
+ *
+ * @global WP_Query   $wp_query   WordPress Query object.
+ * @global WP_Rewrite $wp_rewrite WordPress Rewrite object.
+ */
+function mypopperscores_paging_nav() {
+	global $wp_query, $wp_rewrite;
+	// Don't print empty markup if there's only one page.
+	if ( $wp_query->max_num_pages < 2 ) {
+		return;
+	}
+	$paged        = get_query_var( 'paged' ) ? intval( get_query_var( 'paged' ) ) : 1;
+	$pagenum_link = html_entity_decode( get_pagenum_link() );
+	$query_args   = array();
+	$url_parts    = explode( '?', $pagenum_link );
+	if ( isset( $url_parts[1] ) ) {
+		wp_parse_str( $url_parts[1], $query_args );
+	}
+	$pagenum_link = remove_query_arg( array_keys( $query_args ), $pagenum_link );
+	$pagenum_link = trailingslashit( $pagenum_link ) . '%_%';
+	$format  = $wp_rewrite->using_index_permalinks() && ! strpos( $pagenum_link, 'index.php' ) ? 'index.php/' : '';
+	$format .= $wp_rewrite->using_permalinks() ? user_trailingslashit( $wp_rewrite->pagination_base . '/%#%', 'paged' ) : '?paged=%#%';
+	// Set up paginated links.
+	$links = paginate_links( array(
+		'base'     => $pagenum_link,
+		'format'   => $format,
+		'total'    => $wp_query->max_num_pages,
+		'current'  => $paged,
+		'mid_size' => 1,
+		'add_args' => array_map( 'urlencode', $query_args ),
+		'prev_text' => __( '&larr; Previous', 'mypopperscores' ),
+		'next_text' => __( 'Next &rarr;', 'mypopperscores' ),
+		'type'		=> 'list',
+	) );
+	if ( $links ) :
+	?>
+	<nav class="navigation paging-navigation" role="navigation">
+		<h1 class="screen-reader-text"><?php _e( 'Posts navigation', 'mypopperscores' ); ?></h1>
+		<?php echo $links; ?>
+	</nav><!-- .navigation -->
+	<?php
+	endif;
+}
+endif;

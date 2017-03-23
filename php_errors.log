@@ -1,0 +1,7 @@
+[21-Mar-2017 09:57:13 UTC] PHP Parse error:  syntax error, unexpected '}' in /home/ubuntu/workspace/wp-content/themes/myproperscore/inc/template-tags.php on line 53
+[21-Mar-2017 09:57:13 UTC] PHP Stack trace:
+[21-Mar-2017 09:57:13 UTC] PHP   1. {main}() /home/ubuntu/workspace/wp-admin/admin-ajax.php:0
+[21-Mar-2017 09:57:13 UTC] PHP   2. require_once() /home/ubuntu/workspace/wp-admin/admin-ajax.php:22
+[21-Mar-2017 09:57:13 UTC] PHP   3. require_once() /home/ubuntu/workspace/wp-load.php:37
+[21-Mar-2017 09:57:13 UTC] PHP   4. require_once() /home/ubuntu/workspace/wp-config.php:92
+[21-Mar-2017 09:57:13 UTC] PHP   5. include() /home/ubuntu/workspace/wp-settings.php:425

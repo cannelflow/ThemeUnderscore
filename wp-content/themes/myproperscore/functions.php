@@ -41,7 +41,9 @@ function myproperscore_setup() {
 	 * @link https://developer.wordpress.org/themes/functionality/featured-images-post-thumbnails/
 	 */
 	add_theme_support( 'post-thumbnails' );
-
+	set_post_thumbnail_size( 828, 360, true );
+	add_image_size( 'mypopperscores-small-thumb', 300, 150, true ); 
+	
 	// This theme uses wp_nav_menu() in one location.
 	register_nav_menus( array(
 		'primary'   => esc_html__( 'Primary', 'myproperscore' ),
@@ -113,7 +115,15 @@ function myproperscore_scripts() {
 	
 	// wp_enqueue_style( 'google_font', 'https://fonts.googleapis.com/css?family=Fira+Sans:400,400i,700,700i|Merriweather:400,400i,700,700i' );
 
-	wp_enqueue_script( 'myproperscore-navigation', get_template_directory_uri() . '/js/navigation.js', array(), '20151215', true );
+    // Add Font Awesome icons (http://fontawesome.io) 
+	wp_enqueue_style( 'popperscores-fontawesome', 'https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css' );
+
+	wp_enqueue_script( 'myproperscore-navigation', get_template_directory_uri() . '/js/functions.js', array( 'jquery' ), '20151215', true );
+
+    wp_localize_script( 'myproperscore-navigation', 'screenReaderText', array(
+		'expand'   => '<span class="screen-reader-text">' . __( 'expand child menu', 'myproperscore' ) . '</span>',
+		'collapse' => '<span class="screen-reader-text">' . __( 'collapse child menu', 'myproperscore' ) . '</span>',
+	) );
 
 	wp_enqueue_script( 'myproperscore-skip-link-focus-fix', get_template_directory_uri() . '/js/skip-link-focus-fix.js', array(), '20151215', true );
 
@@ -147,3 +157,4 @@ require get_template_directory() . '/inc/customizer.php';
  * Load Jetpack compatibility file.
  */
 require get_template_directory() . '/inc/jetpack.php';
+
